@@ -12,6 +12,7 @@ const {
 const Store = require("electron-store");
 const { autoUpdater } = require("electron-updater");
 const { join } = require("path");
+const fs = require('fs');
 
 const store = new Store();
 const iconPath = join(__dirname, "/listen1_chrome_extension/images/logo.png");
@@ -277,9 +278,17 @@ const pauseButton = {
 };
 const setThumbarPause = () => {
   mainWindow?.setThumbarButtons([previousButton, playButton, nextButton]);
+  let nowPlayingsong = "";
+  fs.writeFile('/tmp/nowPlayingsong', nowPlayingsong, (err) => {
+    if (err) throw err;
+  })
 };
 const setThumbbarPlay = () => {
   mainWindow?.setThumbarButtons([previousButton, pauseButton, nextButton]);
+  let nowPlayingsong = nowPlayingsongInfo;
+  fs.writeFile('/tmp/nowPlayingsong', nowPlayingsong, (err) => {
+	  if (err) throw err;
+  })
 };
 
 function createWindow() {
@@ -580,11 +589,20 @@ ipcMain.on("currentLyric", (event, arg) => {
 ipcMain.on("trackPlayingNow", (event, track) => {
   if (mainWindow != null) {
     initialTray(mainWindow, track);
+	nowPlayingsongInfo = `${track.title}-${track.artist}`;
+	let nowPlayingsong = nowPlayingsongInfo;
+	fs.writeFile('/tmp/nowPlayingsong', nowPlayingsong, (err) => {
+		if (err) throw err;
+	})
   }
 });
 
 ipcMain.on("isPlaying", (event, isPlaying) => {
   isPlaying ? setThumbbarPlay() : setThumbarPause();
+  // let nowPlayingsong = isPlaying ? nowPlayingsongInfo : "";
+  // fs.writeFile('/tmp/nowPlayingsong', nowPlayingsong, (err) => {
+  // 	if (err) throw err;
+  // })
 });
 
 ipcMain.on("control", async (event, arg, params) => {
@@ -724,7 +742,9 @@ app.on("before-quit", () => {
   }
   store.set("windowState", windowState);
   store.set("proxyConfig", proxyConfig);
-
+  fs.writeFile('/tmp/nowPlayingsong', "", (err) => {
+	  if (err) throw err;
+  })
   willQuitApp = true;
 });
 
