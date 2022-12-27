@@ -28,7 +28,7 @@ Listen 1 可以搜索和播放来自多个主流音乐网站的歌曲，让你�
 
     git submodule update --init --recursive
 	yarn add electron-builder --dev
-	sudo pacman -S fuse2
+	sudo pacman -S fuse2 libxcrypt-compat
 
 ## 运行
 
